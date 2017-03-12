@@ -96,31 +96,7 @@
   <script src="js/game_manager.js"></script>
   <script src="js/application.js"></script>
   <script src="js/wrapper/base_wrapper.js"></script>
-  <script>
-
-  window.onload = function() {
-
-	b = new Base_Wrapper
-        b.start_game()
-	
-        var s = new WebSocket("ws://localhost:9876/");
-        s.onopen = function(e) { alert("opened"); }
-        s.onclose = function(e) { alert("closed"); }
-        s.onmessage = function(e) { 
-        
-		if (e.data === "0")
-			b.move(0)
-		else if (e.data == "1")
-			b.move(1)
-		else if (e.data === "2")
-			b.move(2)
-		else if (e.data == "3")
-			b.move(3)
-			
-		;}
-      };
-
-  </script>
+  <script src="js/wrapper/sockets.js"></script>
 
 </body>
 </html>

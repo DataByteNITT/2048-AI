@@ -2,15 +2,19 @@
 
 import asyncio
 import websockets
+import getch
 
 async def hello(websocket, path):
         
         while True:
             
             print("get inp")
-            greeting = str(input())
+            greeting = getch.getch()
             await websocket.send(str(greeting))
             print("> {}".format(greeting))
+            
+            resp = await websocket.recv()
+            print(resp)
 
 start_server = websockets.serve(hello, 'localhost', 9876)
 
