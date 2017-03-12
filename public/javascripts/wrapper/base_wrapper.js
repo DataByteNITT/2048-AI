@@ -47,5 +47,18 @@ Base_Wrapper.prototype.equalize_tiles = function() {
 Base_Wrapper.prototype.current_game_state = function() {
 	// ajax call to server here..
 	var  data = this.game_manager.serialize();
-	
+	var self = this;
+	// k.move(2);
+	// this.move(2);
+	$.ajax({
+		url: "/compute",
+		type: "POST",
+		data: JSON.stringify(data),
+		contentType: "application/json",
+		complete: function(message){
+			console.log(message);
+			self.move(parseInt(message.responseText));
+
+		}
+	});
 };
