@@ -2,7 +2,6 @@ from __future__ import print_function
 import os
 import neat
 import json
-from server import send, receive
 
 
 def create_game_data( action,start_game = False):
@@ -13,10 +12,10 @@ def create_game_data( action,start_game = False):
 def eval_genome(genome, config):
     net = neat.nn.FeedForwardNetwork.create(genome, config)
     data = create_game_data(start_game=True, action=-1)
-    send(data)
-    current_game_state = receive()
+    # send(data)
+    # current_game_state = receive()
     # loop to run the NN
-    while(!current_game_state.over):
+    while not current_game_state.over:
         next_move = net.activate(current_game_state.grid)
         send(create_game_data(action=next_move))
         current_game_state = receive()

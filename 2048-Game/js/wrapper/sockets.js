@@ -10,6 +10,7 @@ window.onload = function() {
 			// triggered when data is received from the server
 			s.send(JSON.stringify(b.current_game_state()));        
 			console.log(e.data);
+			
       }	
     };
 

@@ -2,37 +2,45 @@ from __future__ import print_function
 import os
 import neat
 import json
-from server import send, receive
-
+import websockets
+import asyncio
 config_path = ''
+class JSON_Parser(object):
+    def __init__(self,j):
+        self.__dict__ = json.loads(j)
 
 async def hello(websocket, path):
 
-    def create_game_data( action,start_game = False):
+    async def create_game_data( action,start_game = False):
         data = {'start_game': start_game, 'action': action}
         return json.dumps(data)
 
 
-    def eval_genome(genome, config):
+    async def eval_genome(genome, config):
         net = neat.nn.FeedForwardNetwork.create(genome, config)
         data = create_game_data(start_game=True, action=-1)
-        send(data)
+        await websocket.send(data)
         current_game_state = receive()
+        print(current_game_state)
         # loop to run the NN
-        while(!current_game_state.over):
+        while not current_game_state.over:
             next_move = net.activate(current_game_state.grid)
-            send(create_game_data(action=next_move))
+            await websocket.send(create_game_data(action=next_move))
             current_game_state = receive()
 
         genome.fitness = current_game_state.score
 
+    async def receive():
+        data = await websocket.receive()
+        current_game_state = JSON_Parser(data)
+        return current_game_state
 
-    def eval_genomes(genomes, config):
+    async def eval_genomes(genomes, config):
         for genome_id, genome in genomes:
             eval_genome(genome,config)
+            # print ("RUNNING")
 
-
-    def run(config_file):
+    async def run(config_file):
         # Load configuration.
         config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
                              neat.DefaultSpeciesSet, neat.DefaultStagnation,
@@ -64,7 +72,7 @@ async def hello(websocket, path):
         # p = neat.Checkpointer.restore_checkpoint('neat-checkpoint-4')
         # p.run(eval_genomes, 10)
     
-    run(config_path)
+    await run(config_path)
     
     #await websocket.send(obj) to send data
     #resp = await websocket.recv() to receive data

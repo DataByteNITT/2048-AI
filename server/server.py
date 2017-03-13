@@ -5,6 +5,8 @@ import websockets
 import json
 #import getch
 
+async def consumer(message):
+    print ("GOT YOUR MESSAGE")
 
 async def hello(websocket, path):
 
@@ -24,8 +26,6 @@ start_server = websockets.serve(hello, 'localhost', 9876)
 asyncio.get_event_loop().run_until_complete(start_server)
 asyncio.get_event_loop().run_forever()
 
-def consumer(message):
-    print ("GOT YOUR MESSAGE")
 def send(data):
     pass
 
