@@ -46,5 +46,7 @@ Base_Wrapper.prototype.equalize_tiles = function() {
 };
 Base_Wrapper.prototype.current_game_state = function() {
 	var  data = this.game_manager.serialize();
+	this.equalize_tiles();
+	data.grid = this.grid;	
 	return data;
 };

@@ -7,6 +7,7 @@ window.onload = function() {
         s.onopen = function(e) { console.log("opened"); }
         s.onclose = function(e) { console.log("closed"); }
         s.onmessage = function(e) { 
+			// triggered when data is received from the server
 			s.send(JSON.stringify(b.current_game_state()));        
 			console.log(e.data);
       }	
