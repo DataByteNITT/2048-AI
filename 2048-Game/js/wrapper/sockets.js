@@ -14,7 +14,7 @@ window.onload = function() {
 		    if (!b.gameManager.grid.cells[0][0])
     		    s.send("NULL")
     		else
-    		    s.send(String(b.gameManager.grid.cells[0][0].value))    
+    		    s.send((b.gameManager.grid))    
     	}
     	else if (e.data === "C")
 		{
@@ -22,7 +22,7 @@ window.onload = function() {
 		    if (!b.gameManager.grid.cells[0][0])
     		    s.send("NULL")
     		else
-    		    s.send(String(b.gameManager.grid.cells[0][0].value))    
+    		    s.send(b.gameManager.grid)  
     	}
 		else if (e.data === "B")
 		{
