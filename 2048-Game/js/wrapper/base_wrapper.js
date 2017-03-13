@@ -5,21 +5,25 @@ function Base_Wrapper() {
 		"down": 2,
 		"left": 3,
 	}
-	this.gameManager = null;
+	this.game_manager = null;
 	this.grid = null;
 }
 
 Base_Wrapper.prototype.start_game = function() {
-	this.gameManager = new GameManager(4,KeyboardInputManager,HTMLActuator,LocalStorageManager);
-	this.grid = this.gameManager.grid;
+	this.game_manager = new GameManager(4,KeyboardInputManager,HTMLActuator,LocalStorageManager);
+	this.clone_grid();
+};
+
+Base_Wrapper.prototype.clone_grid = function() {
+	this.grid = JSON.parse(JSON.stringify(this.game_manager.grid));
 };
 
 Base_Wrapper.prototype.move = function(move) {
-	this.gameManager.inputManager.emit("move",move);
+	this.game_manager.inputManager.emit("move",move);
 };
 
 Base_Wrapper.prototype.equalize_tiles = function() {
-	
+	this.clone_grid();	
 	var max = -1;
 	for (var i = 0; i < 4; i++) {
 		for (var j = 0; j <4 ; j++) {
@@ -39,5 +43,8 @@ Base_Wrapper.prototype.equalize_tiles = function() {
 			}
 		}
 	}
-	this.gameManager.actuate();
+};
+Base_Wrapper.prototype.current_game_state = function() {
+	var  data = this.game_manager.serialize();
+	return data;
 };
