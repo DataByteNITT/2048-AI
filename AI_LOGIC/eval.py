@@ -1,31 +1,47 @@
 from __future__ import print_function
 import os
 import neat
-import json
+import visualize
 
-
-def create_game_data( action,start_game = False):
-    data = {'start_game': start_game, 'action': action}
-    return json.dumps(data)
+from logic import *
 
 
 def eval_genome(genome, config):
     net = neat.nn.FeedForwardNetwork.create(genome, config)
-    data = create_game_data(start_game=True, action=-1)
-    # send(data)
-    # current_game_state = receive()
-    # loop to run the NN
-    while not current_game_state.over:
-        next_move = net.activate(current_game_state.grid)
-        send(create_game_data(action=next_move))
-        current_game_state = receive()
+    game_score = 0.0
+    total_illegal_moves = 0
+    allowed_illegal_moves = 2
+    score = 0.0
+    flag = None
+    # Start Game
+    game_matrix = init_matrix()
+    i = 0
+    # Run loop for NN
+    while (not game_state(game_matrix)[1]) and total_illegal_moves <= allowed_illegal_moves:
+        # print_game(game_matrix)
+        next_move = net.activate(normalize(game_matrix))
+        # x, y = map(float, input("enter x, y ").split(','))
+        # next_move = (x, y)
+        # print("the NN input is {}".format(normalize(game_matrix)))
+        # print("the decided move is {}".format(build_move(next_move)))
+        game_matrix, score, was_illegal = make_move(game_matrix, next_move)
+        if was_illegal:
+            total_illegal_moves += 1
+        else:
+            total_illegal_moves = 0
+        game_score += score
+        # if i == 20:
+        #     print("score : {}".format(game_score))
+        #     i = 0
+        # i += 1
 
-    genome.fitness = current_game_state.score
+    # genome.fitness = game_score
+    return game_score
 
 
 def eval_genomes(genomes, config):
     for genome_id, genome in genomes:
-        eval_genome(genome,config)
+        eval_genome(genome, config)
 
 
 def run(config_file):
@@ -36,7 +52,6 @@ def run(config_file):
 
     # Create the population, which is the top-level object for a NEAT run.
     p = neat.Population(config)
-
     # Add a stdout reporter to show progress in the terminal.
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
@@ -44,21 +59,21 @@ def run(config_file):
     p.add_reporter(neat.Checkpointer(5))
 
     # Run for up to 300 generations.
-    winner = p.run(eval_genomes, 300)
-
+    pe = neat.ParallelEvaluator(4, eval_genome)
+    winner = p.run(pe.evaluate, 300)
+    # winner = p.run(eval_genomes, 1)
     # Display the winning genome.
     print('\nBest genome:\n{!s}'.format(winner))
+    print('\nOutput:')
 
-    # Show output of the most fit genome against training data.
-    # print('\nOutput:')
-    # winner_net = neat.nn.FeedForwardNetwork.create(winner, config)
-    # for xi, xo in zip(xor_inputs, xor_outputs):
-    #     output = winner_net.activate(xi)
-    #     print("input {!r}, expected output {!r}, got {!r}".format(xi, xo, output))
-
+    node_names = {-1: '', -2: '', 0: 'X', 1: 'Y'}
+    visualize.draw_net(config, winner, True, node_names=node_names)
+    visualize.plot_stats(stats, ylog=False, view=True)
+    visualize.plot_species(stats, view=True)
 
     # p = neat.Checkpointer.restore_checkpoint('neat-checkpoint-4')
     # p.run(eval_genomes, 10)
+
 
 if __name__ == '__main__':
     # Determine path to configuration file. This path manipulation is
